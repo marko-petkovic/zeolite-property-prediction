@@ -92,9 +92,16 @@ def get_pore(X, A_pore, l, zeo='MOR'):
         pore = np.array([r6, r5_1, r5_2, r5_2, r5_1, r10t, r10t, r5_1, r5_1, r5_2, r5_2, r6, r10t, r10t])[:,None]
         pore2 = np.array([6, 5, 5, 5, 5, 10, 10, 5, 5, 5, 5, 6, 10, 10])[:,None]
         pore = np.concatenate([pore, pore2], 1)
+
+    # specific for RHO
+    elif zeo == 'RHO':
+
+        r = get_area(X+np.random.randn(*X.shape)*1e-1, A_pore[:, 0]>0, l)
+        pore = np.array([r,r])[:,None]
+        pore2 = np.array([48,48])[:,None]
+        pore = np.concatenate([pore,pore2], 1)
         
-        
-        
+    
         
     return pore
     
@@ -238,8 +245,16 @@ def get_MOR_pore(X, l):
     X_pore[3] = [.5,0,.5]
 
     return X_pore, A_pore
-    
 
+
+def get_RHO_pore(X, l):
+    
+    X_pore = np.array([[0.5,0.5,0.5],
+                       [0.0,0.0,0.0]])
+
+    A_pore = np.ones((len(X), 2), dtype=int)
+
+    return X_pore, A_pore
 def get_MFI_pore(X, l):
 
     side_pore1 = np.array([
@@ -417,6 +432,10 @@ def get_pore_X(X, l, zeo='MOR'):
 
     elif zeo == 'MFI':
         X_pore, A_pore = get_MFI_pore(X, l)
+
+    elif zeo == 'RHO':
+        X_pore, A_pore = get_RHO_pore(X, l)
+        
         
     
     # X_pore = np.zeros((12,3))
