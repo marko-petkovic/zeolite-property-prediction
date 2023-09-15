@@ -69,7 +69,7 @@ def triplets(idx1, idx2, pos, l):
     return col, row, idx_kj, idx_ji, angle, dist
 
 
-def get_pore(X, A_pore, l, zeo='MOR'):
+def get_pore(X, A_pore, l, zeo='MOR', ang=None):
     # specific for MOR
     if zeo =='MOR':
         r12 = get_area(X, A_pore[:,0]>0,l)
@@ -82,12 +82,12 @@ def get_pore(X, A_pore, l, zeo='MOR'):
 
     # specific for MFI
     elif zeo == 'MFI':
+        r10 = get_area(X, A_pore[:, 13]>0, l, axis=0)
+        r10t = get_area(np.mod(X+[0,0,0.5], 1), A_pore[:, 5]>0, l, axis=1)
 
-        r10t = get_area(X, A_pore[:, 5]>0, l)
-
-        r5_1 = get_area(X, A_pore[:, 1]>0, l)
-        r5_2 = get_area(X, A_pore[:, 2]>0, l)
-        r6 = get_area(X, A_pore[:, 0]>0, l)
+        r5_1 = get_area(X, A_pore[:, 1]>0, l, axis=1)
+        r5_2 = get_area(X, A_pore[:, 2]>0, l, axis=1)
+        r6 = get_area(X, A_pore[:, 0]>0, l, axis=1)
 
         pore = np.array([r6, r5_1, r5_2, r5_2, r5_1, r10t, r10t, r5_1, r5_1, r5_2, r5_2, r6, r10t, r10t])[:,None]
         pore2 = np.array([6, 5, 5, 5, 5, 10, 10, 5, 5, 5, 5, 6, 10, 10])[:,None]
@@ -100,9 +100,21 @@ def get_pore(X, A_pore, l, zeo='MOR'):
         pore = np.array([r,r])[:,None]
         pore2 = np.array([48,48])[:,None]
         pore = np.concatenate([pore,pore2], 1)
+
+    elif zeo == 'ITW':
+
+        r12 = get_area(np.mod(X+[0.5,0.,0.], 1), A_pore[:, 0]>0, l, ang=ang)
+        r8 = get_area(np.mod(X+[0.,0.,0.5], 1), A_pore[:, 4]>0, l, ang=ang, axis=0)
+        r6 = get_area(X, A_pore[:, 2]>0, l, ang=ang, axis=0)
+        r4 = get_area(X, A_pore[:, 7]>0, l, ang=ang, axis=0)
+
+
+        pore = np.array([r12,r12,r8,r8,r6,r6,r4,r4])[:,None]
+        pore2 = np.array([12,12,8,8,6,6,4,4])[:,None]
+        pore = np.concatenate([pore,pore2], 1)
         
     
-        
+    
     return pore
     
 def get_transform_matrix(a, b, c, alpha, beta, gamma):
@@ -140,8 +152,8 @@ def get_data(l, zeo='MOR', ang=None):
 
     X_pore, A_pore = get_pore_X(X, l, zeo)
 
-    if arg is not None:
-        h = get_transform_atrix(*l, *ang)
+    if ang is not None:
+        h = get_transform_matrix(*l, *ang)
     else:
         h = None
         
@@ -152,19 +164,25 @@ def get_data(l, zeo='MOR', ang=None):
     
     return atoms, hoa, X, A, d, X_pore, A_pore, d_pore, pore
 
-def get_area(X, idxes, l):
-    
-    _X =(l*X[idxes])[:,:2]
+def get_area(X, idxes, l, axis=2, ang=None):
+
+    if ang is not None:
+        h = get_transform_matrix(*l, *ang)    
+        _X = X[idxes] @ h
+    else:
+        _X =(l*X[idxes])
+
+    _X = np.delete(_X, axis, axis=1)
     
     return ConvexHull(_X).volume
 
 def get_ITW_pore(X, l):
-    X_pore = np.zeros((6,3))
+    X_pore = np.zeros((8,3))
 
     X_pore[0] = [0.5,0,0.5]
     X_pore[1] = [0,0.5,0.5]
     
-    A_pore = np.zeros((len(X), 6))
+    A_pore = np.zeros((len(X), 8))
 
     A_pore[:,:2] = 1
 
