@@ -511,11 +511,11 @@ def get_MFI_pore(X, l):
     
         A_pore[ind] = pores_[i]
 
-    dists = get_distance_matrix(side_pore1, X, l)
+    dists = get_distance_matrix(side_pore1, X, l, None)
     A_pore[dists.argmin(1), 12] = 1
 
 
-    dists = get_distance_matrix(side_pore2, X, l)
+    dists = get_distance_matrix(side_pore2, X, l, None)
     A_pore[dists.argmin(1), 13] = 1
     
     X_pore = np.zeros((14, 3))
