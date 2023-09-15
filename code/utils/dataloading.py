@@ -105,8 +105,27 @@ def get_pore(X, A_pore, l, zeo='MOR'):
         
     return pore
     
+def get_transform_matrix(a, b, c, alpha, beta, gamma):
 
-def get_data(l, zeo='MOR'):
+    alpha = alpha*np.pi/180
+    beta = beta*np.pi/180
+    gamma = gamma*np.pi/180
+    zeta = (np.cos(alpha) - np.cos(gamma) * np.cos(beta))/np.sin(gamma)
+    
+    h = np.zeros((3,3))
+    
+    h[0,0] = a
+    h[0,1] = b * np.cos(gamma)
+    h[0,2] = c * np.cos(beta)
+
+    h[1,1] = b * np.sin(gamma)
+    h[1,2] = c * zeta
+
+    h[2,2] = c * np.sqrt(1 - np.cos(beta)**2 - zeta**2)
+
+    return h
+    
+def get_data(l, zeo='MOR', ang=None):
     
     atoms = np.load(f'Data/{zeo}/atoms.npy').astype(int)
     hoa = np.load(f'Data/{zeo}/hoa.npy')
@@ -117,12 +136,17 @@ def get_data(l, zeo='MOR'):
         A = pd.read_csv(f'Data/{zeo}/adj.txt', header=None, sep=' ').values[:,:-1]
     else:
         A = np.load(f'Data/{zeo}/adj.npy')
-        # A_pore = pd.read_csv('data/adj_pore.csv', header=None, sep=';').values
-    
+        
+
     X_pore, A_pore = get_pore_X(X, l, zeo)
-    
-    d = get_distance_matrix(X,X,l)
-    d_pore = get_distance_matrix(X, X_pore,l)
+
+    if arg is not None:
+        h = get_transform_atrix(*l, *ang)
+    else:
+        h = None
+        
+    d = get_distance_matrix(X,X,l,h)
+    d_pore = get_distance_matrix(X, X_pore,l,h)
     
     pore = get_pore(X, A_pore, l, zeo)
     
@@ -133,6 +157,88 @@ def get_area(X, idxes, l):
     _X =(l*X[idxes])[:,:2]
     
     return ConvexHull(_X).volume
+
+def get_ITW_pore(X, l):
+    X_pore = np.zeros((6,3))
+
+    X_pore[0] = [0.5,0,0.5]
+    X_pore[1] = [0,0.5,0.5]
+    
+    A_pore = np.zeros((len(X), 6))
+
+    A_pore[:,:2] = 1
+
+    top_pores = np.array([ 
+        [0.096, 0.898, 0.314],
+        [0.807, 0.898, 0.332],
+        [0.193, 0.898, 0.668],
+        [0.904, 0.898, 0.686],
+        [0.352, 0.755, 0.894],
+        [0.852, 0.745, 0.894],
+        [0.148, 0.745, 0.106],
+        [0.648, 0.755, 0.106],
+        [0.307, 0.602, 0.332],
+        [0.596, 0.602, 0.314],
+        [0.404, 0.602, 0.686],
+        [0.693, 0.602, 0.686],
+        [0.307, 0.398, 0.332],
+        [0.596, 0.398, 0.314],
+        [0.404, 0.398, 0.686],
+        [0.693, 0.398, 0.668],
+        [0.352, 0.244, 0.894],
+        [0.852, 0.256, 0.894],
+        [0.148, 0.256, 0.106],
+        [0.648, 0.244, 0.106],
+        [0.096, 0.102, 0.314],
+        [0.807, 0.102, 0.332],
+        [0.193, 0.102, 0.668],
+        [0.904, 0.102, 0.686],
+    
+    ])
+
+    _pores = np.array([
+        [2,5,6],
+        [2,5,6],
+        [2,5,6],
+        [2,5,6],
+        [2,4,5],
+        [2,4,5],
+        [2,4,5],
+        [2,4,5],
+        [2,4,7],
+        [2,4,7],
+        [2,4,7],
+        [2,4,7],
+        [3,4,7],
+        [3,4,7],
+        [3,4,7],
+        [3,4,7],
+        [3,4,5],
+        [3,4,5],
+        [3,4,5],
+        [3,4,5],
+        [3,5,6],
+        [3,5,6],
+        [3,5,6],
+        [3,5,6],
+        
+    ])
+
+    for i in range(len(_pores)):
+        A_pore[i, _pores[i]] = 1
+
+    for i in [2,3,7]:
+
+        idxes = A_pore[:,i] > 0
+        pore_pts = X[idxes]
+        pore_x = np.mod(np.mean(pore_pts,0), 1)
+        X_pore[i] = pore_x 
+
+    X_pore[4] = [0.5,0.5,0]
+    X_pore[5] = [0,0,0]
+    X_pore[6] = [0.5,0,0.5]
+
+    return X_pore, A_pore
 
 def get_MOR_pore(X, l):
     top_pores = np.array([
@@ -255,6 +361,8 @@ def get_RHO_pore(X, l):
     A_pore = np.ones((len(X), 2), dtype=int)
 
     return X_pore, A_pore
+
+    
 def get_MFI_pore(X, l):
 
     side_pore1 = np.array([
@@ -280,14 +388,10 @@ def get_MFI_pore(X, l):
         [0.185, 0.377, 0.336],
         [0.305, 0.329, 0.209],
         [0.305, 0.171, 0.209],
-
-
         [0.434, 0.379, 0.309],
         [0.434, 0.121, 0.309],
-        
         [0.934, 0.379, 0.191],
         [0.934, 0.121, 0.191],
-        
         [0.805, 0.329, 0.291],
         [0.805, 0.171, 0.291],
         [0.685, 0.377, 0.164],
@@ -435,42 +539,35 @@ def get_pore_X(X, l, zeo='MOR'):
 
     elif zeo == 'RHO':
         X_pore, A_pore = get_RHO_pore(X, l)
-        
-        
-    
-    # X_pore = np.zeros((12,3))
-    # for i in range(A_pore.shape[1]):
 
-    #     idxes = A_pore[:,i] > 0
-
-    #     X_pore[i] = np.mean(X[idxes],0)
-    
-    # # specific for MOR
-    # X_pore[1] = [0,0,.5]
-    # X_pore[2] = [0,.5,.5]
-    # X_pore[3] = [.5,0,.5]
+    elif zeo == 'ITW': 
+        X_pore, A_pore = get_ITW_pore(X, l)
     
     return X_pore, A_pore
 
 
-def get_distance(a,b,l):
+def get_distance(a,b,l,h):
     
     d = np.abs(a - b)
     for i in range(3):
         if d[i] > .5:
             d[i] -= 1
     d = np.abs(d)
-    d*=l # multiply by scale of unit cell
+    if h is None:
+        d*=l # multiply by scale of unit cell
+    else:
+        d = d @ h # apply matrix if unit cell is not orthorombic
+    
     return (d**2).sum()**.5
 
-def get_distance_matrix(X1,X2,l):
+def get_distance_matrix(X1,X2,l,h):
     
     d = np.zeros((X1.shape[0], X2.shape[0]))
 
     for i in range(X1.shape[0]):
         for j in range(X2.shape[0]):
 
-            d[i,j] = get_distance(X1[i], X2[j],l)
+            d[i,j] = get_distance(X1[i], X2[j],l,h)
 
     return d
 
