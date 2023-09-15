@@ -67,8 +67,9 @@ if __name__ == "__main__":
         ref = data['ref'] # reflections
         tra = data['tra'] # translations
         l = data['l'] # scale of the unit cell
+        ang = data['ang'] if 'ang' in data else None
 
-        atoms, hoa, X, A, d, X_pore, A_pore, d_pore, pore = get_data(l, args.zeolite)
+        atoms, hoa, X, A, d, X_pore, A_pore, d_pore, pore = get_data(l, args.zeolite, ang)
 
         edges, idx1, idx2, idx2_oh = get_graph_data(A, d)
 
