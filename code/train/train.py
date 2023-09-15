@@ -31,7 +31,7 @@ if __name__ == "__main__":
     
     #parser.add_argument('-n', '--name', type=str)
     parser.add_argument('-m', '--model_type', choices=['pore', 'equi','megnet','cgcnn','schnet','dime'], type=str)
-    parser.add_argument('-z', '--zeolite', choices=['MOR', 'MFI', 'RHO'], type=str)
+    parser.add_argument('-z', '--zeolite', choices=['MOR', 'MFI', 'RHO','ITW' ], type=str)
     parser.add_argument('-p', '--prop_train', type=float, default=1.0)
     parser.add_argument('-r', '--repetitions', type=int, default=1)
     parser.add_argument('-i', '--initial_repetition', type=int, default=0)

@@ -136,8 +136,7 @@ def get_data(l, zeo='MOR', ang=None):
         A = pd.read_csv(f'Data/{zeo}/adj.txt', header=None, sep=' ').values[:,:-1]
     else:
         A = np.load(f'Data/{zeo}/adj.npy')
-        # A_pore = pd.read_csv('data/adj_pore.csv', header=None, sep=';').values
-
+        
 
     X_pore, A_pore = get_pore_X(X, l, zeo)
 
@@ -158,6 +157,11 @@ def get_area(X, idxes, l):
     _X =(l*X[idxes])[:,:2]
     
     return ConvexHull(_X).volume
+
+def get_ITW_pore(X, l):
+    pass
+    
+
 
 def get_MOR_pore(X, l):
     top_pores = np.array([
@@ -305,14 +309,10 @@ def get_MFI_pore(X, l):
         [0.185, 0.377, 0.336],
         [0.305, 0.329, 0.209],
         [0.305, 0.171, 0.209],
-
-
         [0.434, 0.379, 0.309],
         [0.434, 0.121, 0.309],
-        
         [0.934, 0.379, 0.191],
         [0.934, 0.121, 0.191],
-        
         [0.805, 0.329, 0.291],
         [0.805, 0.171, 0.291],
         [0.685, 0.377, 0.164],
@@ -460,20 +460,9 @@ def get_pore_X(X, l, zeo='MOR'):
 
     elif zeo == 'RHO':
         X_pore, A_pore = get_RHO_pore(X, l)
-        
-        
-    
-    # X_pore = np.zeros((12,3))
-    # for i in range(A_pore.shape[1]):
 
-    #     idxes = A_pore[:,i] > 0
-
-    #     X_pore[i] = np.mean(X[idxes],0)
-    
-    # # specific for MOR
-    # X_pore[1] = [0,0,.5]
-    # X_pore[2] = [0,.5,.5]
-    # X_pore[3] = [.5,0,.5]
+    elif zeo == 'ITW': 
+        X_pore, A_pore = get_ITW_pore(X, l)
     
     return X_pore, A_pore
 
