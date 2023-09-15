@@ -436,7 +436,7 @@ def get_MFI_pore(X, l):
     ])
 
     side_pore2 = 1 - side_pore1
-    dists = get_distance_matrix(side_pore2, X, l)
+    dists = get_distance_matrix(side_pore2, X, l, None)
     side_pore2 = X[dists.argmin(1)]
 
     
