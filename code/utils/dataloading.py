@@ -105,8 +105,27 @@ def get_pore(X, A_pore, l, zeo='MOR'):
         
     return pore
     
+def get_transform_matrix(a, b, c, alpha, beta, gamma):
 
-def get_data(l, zeo='MOR'):
+    alpha = alpha*np.pi/180
+    beta = beta*np.pi/180
+    gamma = gamma*np.pi/180
+    zeta = (np.cos(alpha) - np.cos(gamma) * np.cos(beta))/np.sin(gamma)
+    
+    h = np.zeros((3,3))
+    
+    h[0,0] = a
+    h[0,1] = b * np.cos(gamma)
+    h[0,2] = c * np.cos(beta)
+
+    h[1,1] = b * np.sin(gamma)
+    h[1,2] = c * zeta
+
+    h[2,2] = c * np.sqrt(1 - np.cos(beta)**2 - zeta**2)
+
+    return h
+    
+def get_data(l, zeo='MOR', ang=None):
     
     atoms = np.load(f'Data/{zeo}/atoms.npy').astype(int)
     hoa = np.load(f'Data/{zeo}/hoa.npy')
@@ -118,11 +137,17 @@ def get_data(l, zeo='MOR'):
     else:
         A = np.load(f'Data/{zeo}/adj.npy')
         # A_pore = pd.read_csv('data/adj_pore.csv', header=None, sep=';').values
-    
+
+
     X_pore, A_pore = get_pore_X(X, l, zeo)
-    
-    d = get_distance_matrix(X,X,l)
-    d_pore = get_distance_matrix(X, X_pore,l)
+
+    if arg is not None:
+        h = get_transform_atrix(*l, *ang)
+    else:
+        h = None
+        
+    d = get_distance_matrix(X,X,l,h)
+    d_pore = get_distance_matrix(X, X_pore,l,h)
     
     pore = get_pore(X, A_pore, l, zeo)
     
@@ -453,24 +478,28 @@ def get_pore_X(X, l, zeo='MOR'):
     return X_pore, A_pore
 
 
-def get_distance(a,b,l):
+def get_distance(a,b,l,h):
     
     d = np.abs(a - b)
     for i in range(3):
         if d[i] > .5:
             d[i] -= 1
     d = np.abs(d)
-    d*=l # multiply by scale of unit cell
+    if h is None:
+        d*=l # multiply by scale of unit cell
+    else:
+        d = d @ h # apply matrix if unit cell is not orthorombic
+    
     return (d**2).sum()**.5
 
-def get_distance_matrix(X1,X2,l):
+def get_distance_matrix(X1,X2,l,h):
     
     d = np.zeros((X1.shape[0], X2.shape[0]))
 
     for i in range(X1.shape[0]):
         for j in range(X2.shape[0]):
 
-            d[i,j] = get_distance(X1[i], X2[j],l)
+            d[i,j] = get_distance(X1[i], X2[j],l,h)
 
     return d
 
