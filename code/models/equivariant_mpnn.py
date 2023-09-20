@@ -282,7 +282,7 @@ class PredictionLayer(nn.Module):
         self.layer2 = nn.Sequential(nn.Linear(mlp_size, mlp_size),
                                     ACT(),
                                     nn.Linear(mlp_size, mlp_size),
-                                    ACT(),
+                                    nn.ReLU(),
                                     nn.Linear(mlp_size, out_size))
 
         self.pool = pool
@@ -315,6 +315,9 @@ class PredictionLayer(nn.Module):
                 sites = hidden.permute(0,2,1)
                 sites = self.poolfunc(sites)
                 sites = torch.squeeze(sites)
+
+        else:
+            sites = hidden
         
         pred = self.layer2(sites)
 
