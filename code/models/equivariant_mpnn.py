@@ -300,26 +300,28 @@ class PredictionLayer(nn.Module):
         
             
         
-    def forward(self, sites):
+    def forward(self, sites, return_hidden=False):
         
-        # layer which acts locally on each node
-        sites = self.layer1(sites)
+ # layer which acts locally on each node
+        hidden = self.layer1(sites)
         
         # if we wish to predict a global feature, perform mean aggregation of each feature
         if not self.site_pred:
             
             if self.pool in ['sum','mean']:
             
-                sites = self.poolfunc(sites, 1)
+                sites = self.poolfunc(hidden, 1)
             else:
-                sites = sites.permute(0,2,1)
+                sites = hidden.permute(0,2,1)
                 sites = self.poolfunc(sites)
                 sites = torch.squeeze(sites)
         
-        sites = self.layer2(sites)
-        
-        return sites
+        pred = self.layer2(sites)
 
+        if return_hidden:
+            return pred, hidden
+        else:
+            return pred
 
 
 class MPNN(nn.Module):
@@ -351,7 +353,7 @@ class MPNN(nn.Module):
         self.pred = PredictionLayer(self.site_pred, hid_size[-1], mlp_size, out_size, self.perms, pool=pool)
         
         
-    def forward(self, sites, bonds):
+    def forward(self, sites, bonds, return_hidden=False):
         # gaussian embedding of distance
         bonds = gaussian_basis(bonds, **self.gaussian_kwargs)
         
@@ -363,9 +365,12 @@ class MPNN(nn.Module):
         sites, _ = self.message_steps((sites, bonds))
         
         # perform prediction
-        pred = self.pred(sites)
-        
-        return pred
+        if return_hidden:
+            pred, hidden = self.pred(sites, True)
+            return pred, hidden
+        else:
+            pred = self.pred(sites) 
+            return pred
         
         
         
@@ -511,7 +516,7 @@ class MPNNPORE(nn.Module):
         self.pred = PredictionLayer(self.site_pred, hid_size[-1], mlp_size, out_size, self.perms, pool=pool)
         
         
-    def forward(self, sites, bonds, sites_p, bonds_sp, bonds_ps, p=None):
+    def forward(self, sites, bonds, sites_p, bonds_sp, bonds_ps, p=None, return_hidden=False):
 
         if p is not None:
             p = p[:,None,None].repeat(1, sites.shape[1],1)
@@ -537,12 +542,14 @@ class MPNNPORE(nn.Module):
         sites, _, sites_p, _, _ = self.message_steps((sites, bonds, sites_p, bonds_sp, bonds_ps))
         
         # perform prediction
-        if self.pool_pore:
-           pred = self.pred(sites_p)
+        if return_hidden:
+            _sites = sites_p if self.pool_pore else sites
+            pred, hidden = self.pred(_sites, True)
+            return pred, hidden
         else:
-           pred = self.pred(sites)
-        
-        return pred
+            _sites = sites_p if self.pool_pore else sites
+            pred = self.pred(_sites) 
+            return pred
         
         
         
