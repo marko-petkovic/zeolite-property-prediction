@@ -590,6 +590,8 @@ class MPNNPORE(nn.Module):
                 self.optimizer.zero_grad()
                 sites, bonds, sites_p, bonds_sp, bonds_ps, y = sites.float().to('cuda'), bonds.float().to('cuda'), sites_p.float().to('cuda'), bonds_sp.float().to('cuda'), bonds_ps.float().to('cuda'), y.float().to('cuda')
                 y_hat = self.forward(sites, bonds, sites_p, bonds_sp, bonds_ps)
+                if self.site_pred:
+                    y_hat = y_hat.sum(1)
                 y_hat = y_hat.squeeze()
                 #y_hat = y_hat.reshape(y_hat.shape[0])
                 loss = self.criterion(y_hat, y)
@@ -614,6 +616,9 @@ class MPNNPORE(nn.Module):
                 with torch.no_grad():
                     sites, bonds, sites_p, bonds_sp, bonds_ps, y = sites.float().to('cuda'), bonds.float().to('cuda'), sites_p.float().to('cuda'), bonds_sp.float().to('cuda'), bonds_ps.float().to('cuda'), y.float().to('cuda')
                     y_hat = self.forward(sites, bonds, sites_p, bonds_sp, bonds_ps)
+                    if self.site_pred:
+                        y_hat = y_hat.sum(1)
+                        
                     y_hat = y_hat.squeeze()
                     # y_hat = y_hat.reshape(y_hat.shape[0])
                     loss = self.criterion(y_hat, y)
@@ -640,6 +645,9 @@ class MPNNPORE(nn.Module):
             with torch.no_grad():
                 sites, bonds, sites_p, bonds_sp, bonds_ps, y = sites.float().to('cuda'), bonds.float().to('cuda'), sites_p.float().to('cuda'), bonds_sp.float().to('cuda'), bonds_ps.float().to('cuda'), y.float().to('cuda')
                 y_hat = self.forward(sites, bonds, sites_p, bonds_sp, bonds_ps)
+                if self.site_pred:
+                    y_hat = y_hat.sum(1)
+    
                 y_hat = y_hat.reshape(y_hat.shape[0]).cpu()
 
                 _b = y_hat.shape[0]
