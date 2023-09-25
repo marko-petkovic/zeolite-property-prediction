@@ -65,7 +65,7 @@ def plot_mor(X, A, X_pore, A_pore, l, ref, tra, ax):
     color2 = np.zeros((X_pore.shape[0],))
     for i in range(len(X_pore)):
         
-        for j in [0,2,4]:
+        for j in [0,2,4,15]:
             
             for k in range(ref.shape[0]):
                 
