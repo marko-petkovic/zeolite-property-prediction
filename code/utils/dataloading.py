@@ -141,6 +141,9 @@ def get_data(l, zeo='MOR', ang=None):
     
     atoms = np.load(f'Data/{zeo}/atoms.npy').astype(int)
     hoa = np.load(f'Data/{zeo}/hoa.npy')
+    henry = np.load(f'Data/{zeo}/henry.npy')
+
+    y = np.column_stack((hoa,henry))
     
     X = np.load(f'Data/{zeo}/X.npy')
 
@@ -162,7 +165,7 @@ def get_data(l, zeo='MOR', ang=None):
     
     pore = get_pore(X, A_pore, l, zeo)
     
-    return atoms, hoa, X, A, d, X_pore, A_pore, d_pore, pore
+    return atoms, y, X, A, d, X_pore, A_pore, d_pore, pore
 
 def get_area(X, idxes, l, axis=2, ang=None):
 
@@ -567,6 +570,8 @@ def get_pore_X(X, l, zeo='MOR'):
 def get_distance(a,b,l,h):
     
     d = np.abs(a - b)
+    
+    # d = np.where(d>0.5, d, d-1)
     for i in range(3):
         if d[i] > .5:
             d[i] -= 1
