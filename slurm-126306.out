@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/mnt/server-home/TUE/20175552/zeolite-property-prediction/code/train/train.py", line 17, in <module>
+    from models.equivariant_mpnn import MPNN, MPNNPORE
+  File "/mnt/server-home/TUE/20175552/zeolite-property-prediction/../zeolite-property-prediction/code/models/equivariant_mpnn.py", line 500
+    self.out_size = out_size
+TabError: inconsistent use of tabs and spaces in indentation
+/var/spool/slurm/d/job126306/slurm_script: line 5: deactivate: No such file or directory
