@@ -1,0 +1,34 @@
+started repetition 0
+started!
+starting fitting!
+  0%|          | 0/200 [00:00<?, ?epoch/s, loss]  0%|          | 0/200 [00:00<?, ?epoch/s, loss]
+Traceback (most recent call last):
+  File "/mnt/server-home/TUE/20175552/zeolite-property-prediction/code/train/train.py", line 131, in <module>
+    trainloss, testloss = mpnn.fit(trainloader, testloader, args.epochs, scale_loss=False, opt=optim.AdamW,opt_kwargs={'lr':lr}, crit_kwargs={'delta':1.0})
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/server-home/TUE/20175552/zeolite-property-prediction/../zeolite-property-prediction/code/models/equivariant_mpnn.py", line 592, in fit
+    y_hat = self.forward(sites, bonds, sites_p, bonds_sp, bonds_ps)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/server-home/TUE/20175552/zeolite-property-prediction/../zeolite-property-prediction/code/models/equivariant_mpnn.py", line 551, in forward
+    pred = self.pred(_sites) 
+           ^^^^^^^^^^^^^^^^^
+  File "/home/TUE/20175552/miniconda3/envs/torch2/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/server-home/TUE/20175552/zeolite-property-prediction/../zeolite-property-prediction/code/models/equivariant_mpnn.py", line 319, in forward
+    pred = self.layer2(sites)
+           ^^^^^^^^^^^^^^^^^^
+  File "/home/TUE/20175552/miniconda3/envs/torch2/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/TUE/20175552/miniconda3/envs/torch2/lib/python3.11/site-packages/torch/nn/modules/container.py", line 217, in forward
+    input = module(input)
+            ^^^^^^^^^^^^^
+  File "/home/TUE/20175552/miniconda3/envs/torch2/lib/python3.11/site-packages/torch/nn/modules/module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/TUE/20175552/miniconda3/envs/torch2/lib/python3.11/site-packages/torch/nn/modules/linear.py", line 114, in forward
+    return F.linear(input, self.weight, self.bias)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: mat1 and mat2 shapes cannot be multiplied (512x8 and 24x24)
+/var/spool/slurm/d/job123842/slurm_script: line 5: deactivate: No such file or directory

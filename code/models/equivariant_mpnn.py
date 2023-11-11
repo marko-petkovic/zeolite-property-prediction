@@ -497,6 +497,7 @@ class MPNNPORE(nn.Module):
         self.perms = self.get_perms(X, ref, tra)
         self.perms_p = self.get_perms(X_p, ref, tra)
         self.site_pred = site_pred
+        self.out_size = out_size
         
         self.gaussian_kwargs = dict(max_distance=mx_d, num_centers=centers, width=width, min_distance=mn_d)
         
@@ -635,8 +636,8 @@ class MPNNPORE(nn.Module):
     
     def predict(self, dataloader):
 
-        y_pred = torch.zeros((len(dataloader.dataset),))
-        y_true = torch.zeros((len(dataloader.dataset),))
+        y_pred = torch.zeros((len(dataloader.dataset),self.out_size))
+        y_true = torch.zeros((len(dataloader.dataset),self.out_size))
 
 
         b = dataloader.batch_size
@@ -651,7 +652,8 @@ class MPNNPORE(nn.Module):
                 if self.site_pred:
                     y_hat = y_hat.sum(1)
     
-                y_hat = y_hat.reshape(y_hat.shape[0]).cpu()
+                # y_hat = y_hat.reshape(y_hat.shape[0]).cpu()
+                y_hat = y_hat.cpu()
 
                 _b = y_hat.shape[0]
 
