@@ -15,12 +15,8 @@ import torch.optim as optim
 
 
 from models.equivariant_mpnn import MPNN, MPNNPORE
-from models.megnet import MEGNet
-from models.cgcnn import CGCNN
-from models.schnet import SchNet
-from models.dimenet import DimeNetPlusPlus as DimeNet
 
-from utils.ZeoliteData import get_zeolite, get_data_pore, get_data_graph, get_data_megnet
+from utils.ZeoliteData import get_zeolite, get_data_pore, get_data_graph
 from utils.dataloading import get_data, get_graph_data
 
 import argparse
@@ -29,8 +25,7 @@ if __name__ == "__main__":
     
     parser = argparse.ArgumentParser()
     
-    #parser.add_argument('-n', '--name', type=str)
-    parser.add_argument('-m', '--model_type', choices=['pore', 'equi','megnet','cgcnn','schnet','dime'], type=str)
+    parser.add_argument('-m', '--model_type', choices=['pore', 'equi'], type=str)
     parser.add_argument('-z', '--zeolite', choices=['MOR', 'MFI', 'RHO','ITW' ], type=str)
     parser.add_argument('-p', '--prop_train', type=float, default=1.0)
     parser.add_argument('-r', '--repetitions', type=int, default=1)
@@ -44,7 +39,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     
-    #model_name = args.name
     
     for i in range(args.repetitions):
         
@@ -94,35 +88,6 @@ if __name__ == "__main__":
                             hid_size=[8]*6, site_emb_size=8, edge_emb_size=8, mlp_size=24,
                             centers=10, mx_d=6, width=1, pool='sum').to('cuda')
 
-
-            _, testloader, trainloader = get_data_graph(atoms, hoa, edges, bs=32, sub_lim=args.sub_lim, p=args.prop_train, random=args.random_split)
-
-        elif args.model_type == 'megnet':
-
-            mpnn = MEGNet(idx1.to('cuda'), idx2.to('cuda')).to('cuda')
-
-
-            _, testloader, trainloader = get_data_megnet(atoms, hoa, edges, bs=32, sub_lim=args.sub_lim, p=args.prop_train, random=args.random_split)
-
-        
-        elif args.model_type == 'cgcnn':
-
-            mpnn = CGCNN(idx1.to('cuda'), idx2.to('cuda')).to('cuda')
-
-
-            _, testloader, trainloader = get_data_graph(atoms, hoa, edges, bs=32, sub_lim=args.sub_lim, p=args.prop_train, random=args.random_split)
-            
-        
-        elif args.model_type == 'schnet':
-            
-            mpnn = SchNet(d).to('cuda')
-
-            
-            _, testloader, trainloader = get_data_graph(atoms, hoa, edges, bs=32, sub_lim=args.sub_lim, p=args.prop_train, random=args.random_split)
-
-        elif args.model_type == 'dime':
-
-            mpnn = DimeNet(idx1, idx2, torch.tensor(X), torch.tensor(l)).to('cuda')
 
             _, testloader, trainloader = get_data_graph(atoms, hoa, edges, bs=32, sub_lim=args.sub_lim, p=args.prop_train, random=args.random_split)
 
