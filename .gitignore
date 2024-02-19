@@ -2,6 +2,7 @@
 /old_models
 /model_data*
 *.zip
+old
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
