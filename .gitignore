@@ -3,6 +3,7 @@
 /model_data*
 *.zip
 old
+train_zeonet
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
