@@ -3,7 +3,7 @@
 /model_data*
 *.zip
 old
-train_zeonet
+.train_zeonet  // Add this line to ignore the train_zeonet file
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
